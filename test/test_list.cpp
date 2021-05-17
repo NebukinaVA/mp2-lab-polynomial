@@ -294,31 +294,3 @@ TEST(Iterator, postfix_increment_throws_if_points_on_nullptr)
 
 	ASSERT_ANY_THROW(it++);
 }
-
-TEST(Iterator, addition_assignment_is_correct)
-{
-	List<int> l;
-	List<int>::Iterator it;
-
-	l.push_back(1);
-	l.push_back(2);
-	l.push_back(3);
-	it = l.head();
-	it += 2;
-
-	EXPECT_EQ(3, it->data);
-}
-
-TEST(Iterator, CAN_PUSH_BACK)
-{
-	List<int> l;
-	List<int>::Iterator it;
-
-	l.push_back(1);
-	l.push_back(2);
-	l.push_back(3);
-	it = l.head();
-	it++;
-
-	EXPECT_EQ(2, it->data);
-}

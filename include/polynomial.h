@@ -5,25 +5,28 @@
 #include "list.h"
 #include "monomial.h"
 
-class Polynomial : public List<Monomial>
+class Polynomial
 {
 public:
-	Polynomial() : List<Monomial>()
+	List<Monomial> polynom;
+	Polynomial() {}
+	Polynomial(const Polynomial& pol)
 	{
-	}
-	Polynomial(const Polynomial& pol) : List<Monomial>() 
-	{
+		polynom = pol.polynom;
 	}
 	Polynomial(std::string str)
 	{
-		Polynomial polynom;
 		std::string temp;
 		if (!IsCorrect(str)) throw "Incorrect string";
 		int len = str.length();
 		int i = 0;
+		if (str[0] == '-')
+		{
+			temp += '-';
+			i++;
+		}
 		while (i < len)
 		{
-			temp.clear();
 			while ((str[i] != '+') && (str[i] != '-') && (str[i] != '\0'))
 			{
 				temp += str[i];
@@ -34,7 +37,14 @@ public:
 				Monomial mon(temp);
 				polynom.push_back(mon);
 			}
-			i++;
+			temp.clear();
+			if (str[i] == '-')
+			{
+				temp += '-';
+				i++;
+			}
+			else
+				i++;
 		}
 	}
 	bool IsCorrect(std::string str)
@@ -47,6 +57,11 @@ public:
 		while (i < len)
 		{
 			temp.clear();
+			if ((i == 0) && (str[i] == '-'))
+			{
+				temp += '-';
+				i++;
+			}
 			while ((str[i] != '+') && (str[i] != '-') && (str[i] != '\0'))
 			{
 				if (str[i] == '+') i++;
@@ -63,49 +78,127 @@ public:
 	Polynomial operator*(Monomial &m)  // P*M
 	{
 		Polynomial temp;
-		Polynomial::Iterator it = begin();
-		while (it != end())
+		List<Monomial>::Iterator it1 = polynom.begin();
+		List<Monomial>::Iterator it2 = temp.polynom.begin();
+		temp.polynom.append(m*(it1->data), it2.get_node());
+		++it1;
+		it2 = temp.polynom.begin();
+		while (it1 != polynom.end())
 		{
-			temp.push_back(m*it->data);
-			++it;
+			temp.polynom.append(m*(it1->data), it2.get_node());
+			++it1;
+			++it2;
 		}
 		return temp;
 	}
 	Polynomial operator+(Monomial &m)  // P+M
 	{
 		Polynomial temp(*this);
-		temp.push_back(m);
+		List<Monomial>::Iterator it1(temp.polynom.begin()), it2(it1);
+		while (it1 != temp.polynom.end())
+		{
+			if (it1->data.get_deg() == m.get_deg())
+			{
+				if ((it1->data.coeff + m.coeff) != 0)
+				{
+					temp.polynom.change_node(it1->data + m, it1.get_node());
+				}
+				else
+				{
+					temp.polynom.remove(it1.get_node());
+				}
+				break;
+			}
+			else if (it1->data < m)
+			{
+				if (it1 == temp.polynom.begin())
+				{
+					temp.polynom.push_front(m);
+				}
+				else 
+				{
+					temp.polynom.append(m, it2.get_node());
+				}
+				break;
+			}
+			if (it1->next == nullptr)
+			{
+				temp.polynom.push_back(m);
+				break;
+			}
+			it2 = it1;
+			++it1;
+		}
 		return temp;
 	}
 	Polynomial operator+(Polynomial &p)  // P+P
 	{
-		Polynomial temp;
-		Polynomial::Iterator it1 = begin();
-		Polynomial::Iterator it2 = p.begin();
-		while (it1 != end())
+		Polynomial temp(*this);
+		if (!(p.polynom.empty()))
 		{
-			// 
+			if (!(polynom.empty()))
+			{
+				List<Monomial>::Iterator it = p.polynom.begin();
+				while (it != p.polynom.end())
+				{
+					temp = temp + it->data;
+					++it;
+				}
+			}
+			else temp = p;
 		}
-		// + sort polynomial
+		return temp;
 	}
 	Polynomial operator*(Polynomial &p)  // P*P
 	{
 		Polynomial temp;
-		Polynomial::Iterator it = begin();
-		while (it != end())
+		List<Monomial>::Iterator it = p.polynom.begin();
+		while (it != p.polynom.end())
 		{
-			temp = temp + (*this) * it->data;
+			temp = temp + ((*this) * it->data);
 			++it;
 		}
 		return temp;
-	}	
+	}
+
+	Polynomial operator*(double c)  // P*const
+	{
+		Polynomial temp;
+		List<Monomial>::Iterator it = polynom.begin();
+		while (it != polynom.end())
+		{
+			temp.polynom.push_back(it->data * c);
+			++it;
+		}
+		return temp;
+	}
+
+	Polynomial operator-(Polynomial &p)  // P-P
+	{
+		return (*this + p * (-1));
+	}
+
+	Polynomial operator=(Polynomial &p) 
+	{
+		polynom = p.polynom;
+		return *this;
+	}
+
+	bool operator==(Polynomial &p)
+	{
+		return (polynom == p.polynom);
+	}
+
 	friend std::ostream& operator<<(std::ostream &out, Polynomial &p)
 	{
-		Polynomial::Iterator it = p.begin();
+		List<Monomial>::Iterator it = p.polynom.begin();
 		out << it->data;
-		while (it != p.end())
+		++it;
+		while (it != p.polynom.end())
 		{
-			out << "+" << it->data;
+
+			if (it->data.coeff > 0) out << "+";
+			out << it->data;
 			++it;
 		}
 		return out;

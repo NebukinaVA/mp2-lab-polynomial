@@ -28,7 +28,7 @@ TEST(Monomial, can_create_monom_from_string)
 
 TEST(Monomial, can_check_if_string_is_correct_1)
 {
-	EXPECT_NO_THROW(Monomial m("2x4y5z6"));
+	EXPECT_NO_THROW(Monomial m("-2x4y5z6"));
 }
 
 TEST(Monomial, can_check_if_string_is_correct_2)

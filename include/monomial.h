@@ -43,7 +43,9 @@ public:
 		deg = 0;
 		coeff = 1;
 		int len = monom.length();
-		if (xyz.find(monom[0]) == std::string::npos)
+		if (monom[0] == '-')
+			coeff = -1;
+		else if (xyz.find(monom[0]) == std::string::npos)
 			coeff = std::stod(monom);
 		for (int i = 0; i < len; i++)
 		{
@@ -107,7 +109,7 @@ public:
 					if ((dot > 1) || (monom[i] == '.')) cond = 3;
 				}
 				if (letters.find(monom[i]) != std::string::npos)
-					cond = 1;
+					cond = 2;
 				break;
 			}
 			case 1:
@@ -146,13 +148,15 @@ public:
 	{
 		return !(*this == m);
 	}
-	Monomial& operator+(const Monomial &m)
+
+	Monomial operator+(const Monomial &m)
 	{
 		if (deg != m.deg) throw "Unequal degrees";
 		Monomial temp(deg, coeff + m.coeff);
 		return temp;
 	}
-	Monomial& operator*(Monomial &m)
+
+	Monomial operator*(Monomial &m)
 	{
 		if ((xDeg() + m.xDeg()) > 9) throw "Error";
 		if ((yDeg() + m.yDeg()) > 9) throw "Error";
@@ -160,19 +164,30 @@ public:
 		Monomial temp(deg + m.deg, coeff * m.coeff);
 		return temp;
 	}
-	Monomial& operator-(const Monomial &m)
+
+	Monomial operator*(double c)
+	{
+		Monomial m(deg, coeff * c);
+		return m;
+	}
+
+	Monomial operator-(const Monomial &m)
 	{
 		if (deg != m.deg) throw "Unequal degrees";
 		Monomial temp(deg, coeff - m.coeff);
 		return temp;
 	}
-	bool operator> (const Monomial& m) const // для сортировки по степеням
+	bool operator> (const Monomial& m) const
 	{
 		return (deg > m.deg);
 	}
 	bool operator< (const Monomial& m) const
 	{
 		return (deg < m.deg);
+	}
+	int get_deg() const
+	{
+		return deg;
 	}
 	friend std::ostream& operator<<(std::ostream &out, Monomial &m)
 	{

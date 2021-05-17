@@ -23,9 +23,10 @@ public:
 	{
 		Node<T>* pointer;
 	public:
-		Iterator() { pointer = new Node<T>; }
+		Iterator() { pointer = 0; }
 		Iterator(Node<T>* ptr) { pointer = ptr; }
 		Iterator(const Iterator &i) { pointer = i.pointer; }
+		Node<T>* get_node() { return pointer; }
 		Node<T>& operator*() { return *pointer; }
 		Node<T>* operator->() { return pointer; }
 		Iterator operator++()  // prefix
@@ -65,6 +66,7 @@ public:
 	void pop_front();
 	void push_back(const T& elem);
 	void pop_back();
+	void change_node(const T& elem, Node<T>* ptr);
 	void clear();
 	Node<T>* head() { return first; }
 	List<T>& operator=(const List<T> &l);
@@ -187,6 +189,12 @@ void List<T>::pop_back()
 	}
 	temp = nullptr;
 	Size--;
+}
+
+template <class T>
+void List<T>::change_node(const T& elem, Node<T>* ptr)
+{
+	ptr->data = elem;
 }
 
 template <class T>
