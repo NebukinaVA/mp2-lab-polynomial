@@ -138,12 +138,53 @@ public:
 		{
 			if (!(polynom.empty()))
 			{
-				List<Monomial>::Iterator it = p.polynom.begin();
-				while (it != p.polynom.end())
+				List<Monomial>::Iterator it1(temp.polynom.begin()), it2(p.polynom.begin());
+				List<Monomial>::Iterator node(it1);
+				while ((it1 != temp.polynom.end()) && (it2 != p.polynom.end()))
 				{
-					temp = temp + it->data;
-					++it;
+					if (it1->data > it2->data)
+					{
+						if (it1->next == nullptr)
+						{
+							temp.polynom.append(it2->data, it1.get_node());
+							it2++;
+						}
+						it1++;
+					}
+					else if (it1->data < it2->data)
+					{
+						if ((it1 == temp.polynom.begin()))
+						{
+							temp.polynom.push_front(it2->data);
+							it1++;
+							it2++;
+							node = temp.polynom.begin();
+						}
+						else
+						{
+							temp.polynom.append(it2->data, node.get_node());
+							node = it1;
+							it1++;
+							it2++;
+						}
+					}
+					else if ((it1->data.coeff + it2->data.coeff) != 0)
+					{
+						temp.polynom.change_node(it1->data + it2->data, it1.get_node());
+						node = it1;
+						it1++;
+						it2++;
+					}
+					else
+					{
+						temp.polynom.remove(node.get_node());
+						node = it1;
+						it1++;
+						it2++;
+					}
+					
 				}
+				
 			}
 			else temp = p;
 		}
