@@ -7,7 +7,7 @@ class Monomial
 {
 public:
 	int deg;
-	int coeff;
+	double coeff;
 	int xDeg()
 	{
 		return (deg / 100);
@@ -25,7 +25,7 @@ public:
 		deg = 0;
 		coeff = 0;
 	}
-	Monomial(int d, int c) 
+	Monomial(int d, double c) 
 	{
 		if ((d < 0) || (d > 999)) throw "Error";
 		deg = d;
